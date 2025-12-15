@@ -1,7 +1,6 @@
 {
   "name": "hotel_booking",
   "version": "1.0.0",
-  "main": "index.js",
   "scripts": {
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "npm run dev --prefix backend",
