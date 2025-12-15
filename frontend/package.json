@@ -32,7 +32,8 @@
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.17",
     "tod0x": "file:..",
-    "todox": "file:.."
+    "todox": "file:..",
+    "@vitejs/plugin-react": "^4.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
