@@ -140,7 +140,7 @@ app.use((_req, res) =>
 //   START SERVER
 // ==============================
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGODB_URI;
+const MONGO_URI = process.env.MONGODB_URI_ORIGINAL;
 
 async function startServer() {
     const connectDB = require("./config/mongodbConnection.js");
@@ -161,5 +161,5 @@ async function startServer() {
     process.exit(1);
   }
 }
-
+console.log(process.env.MONGODB_URI_ORIGINAL)
 startServer();

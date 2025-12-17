@@ -38,3 +38,8 @@ def ingestCurrentAvailableHotelsPhoto(locationIDs: list) -> None:
 
 ingestCurrentAvailableHotelsPhoto(getTheCurrentAvailableIds())
 
+11111
+22222
+33333
+44444
+55555

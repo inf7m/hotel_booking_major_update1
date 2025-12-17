@@ -10,8 +10,8 @@ const hotelSchema = new mongoose.Schema(
     imageUrl: { type: String, default: "" },
     imageUrls: { type: [String], default: [] },
     amenities: { type: [String], default: [] },
-    latitude: { type: Number, default: null },
-    longitude: { type: Number, default: null },
+    latitude: { type: String, default: null },
+    longitude: { type: String, default: null },
   },
   {
     timestamps: true,

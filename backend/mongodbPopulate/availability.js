@@ -19,12 +19,10 @@ async function populateAvailabilityForAllHotels() {
 
     // Fetch all hotels to get location_id of each hotel
     const hotels = await hotelsCollection.find({}, { projection: { location_id: 1 } }).toArray();
-
     for (const hotel of hotels) {
         for (let i = 0; i < daysToPopulate; i++) {
             const date = new Date(today);
             date.setDate(today.getDate() + i);
-
             availabilityDocs.push({
                 hotelId: hotel.location_id,
                 date: date,
@@ -34,7 +32,6 @@ async function populateAvailabilityForAllHotels() {
             });
         }
     }
-
     // Insert Phase
     if (availabilityDocs.length > 0) {
         const result = await availabilityCollection.insertMany(availabilityDocs);

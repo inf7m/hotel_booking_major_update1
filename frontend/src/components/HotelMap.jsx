@@ -1,79 +1,78 @@
-import React from "react";
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import React, { useRef, useEffect } from "react";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+
+// Fix default marker icon issue
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+    iconUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+    shadowUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+});
 
 const HotelMap = ({ latitude, longitude, hotelName, address }) => {
-  const mapContainerStyle = {
-    width: "100%",
-    height: "300px",
-    borderRadius: "8px",
-  };
+    const lat = parseFloat(latitude) || 10.762622; // default HCM
+    const lng = parseFloat(longitude) || 106.660172;
 
-  // Parse tọa độ, nếu không có thì dùng tọa độ mặc định (TP.HCM)
-  const center = {
-    lat: parseFloat(latitude) || 10.762622,
-    lng: parseFloat(longitude) || 106.660172,
-  };
+    const markerRef = useRef();
 
-  const mapOptions = {
-    zoomControl: true,
-    streetViewControl: false,
-    mapTypeControl: false,
-    fullscreenControl: true,
-  };
-
-  return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-2">Vị trí</h2>
-      {address && (
-        <p className="text-gray-600 mb-4 flex items-center">
-          <svg
-            className="w-5 h-5 mr-2 text-blue-600"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path
-              fillRule="evenodd"
-              d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-              clipRule="evenodd"
-            />
-          </svg>
-          {address}
-        </p>
-      )}
-
-      <div className="relative">
-        <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
-          <GoogleMap
-            mapContainerStyle={mapContainerStyle}
-            center={center}
-            zoom={15}
-            options={mapOptions}
-          >
-            <Marker position={center} title={hotelName} />
-          </GoogleMap>
-        </LoadScript>
-      </div>
-
-      <button
-        onClick={() =>
-          window.open(
-            `https://www.google.com/maps?q=${center.lat},${center.lng}`,
-            "_blank"
-          )
+    useEffect(() => {
+        // Open popup when marker is mounted
+        if (markerRef.current) {
+            markerRef.current.openPopup();
         }
-        className="mt-4 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-      >
-        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-          <path
-            fillRule="evenodd"
-            d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-            clipRule="evenodd"
-          />
-        </svg>
-        Xem trên Google Maps
-      </button>
-    </div>
-  );
+    }, []);
+
+    return (
+        <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-semibold mb-2">Vị trí</h2>
+            {address && <p className="text-gray-600 mb-4">{address}</p>}
+
+            <MapContainer
+                center={[lat, lng]}
+                zoom={15}
+                scrollWheelZoom={false} // optional: disable scroll zoom
+                style={{
+                    width: "100%",
+                    height: "300px",
+                    borderRadius: "8px",
+                    position: "relative",
+                    zIndex: 0, // Make sure map is below popup buttons
+                }}
+            >
+                <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                />
+                <Marker position={[lat, lng]} ref={markerRef}>
+                    <Popup
+                        // Popup container style to prevent overflow
+                        className="leaflet-popup-content-wrapper"
+                        autoPan={true} // Auto pan to fit popup fully in map
+                        keepInView={true} // Keep popup in map view
+                    >
+                        {hotelName}
+                    </Popup>
+                </Marker>
+            </MapContainer>
+
+            <button
+                onClick={() =>
+                    window.open(
+                        `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}`,
+                        "_blank"
+                    )
+                }
+                className="mt-4 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+                Xem trên OpenStreetMap
+            </button>
+        </div>
+    );
 };
 
 export default HotelMap;
