@@ -1,16 +1,12 @@
-# Docker as scalable ETL/ELT services 
+# Docker for Scalable ETL/ELT Services
 
 ## Overview
-With the popular and the trending of microservices
-using Docker as data pipelines services will be an example and practice in here
+With the growing adoption of microservices, using Docker to implement data pipelines has become a practical and efficient approach. This project demonstrates how Docker can be leveraged to run ETL/ELT processes as scalable, independent services.
 
-### Why choosing Docker/Container not VMs?
-- **Batching** in period not streaming
-- **Cost** during the VMs
-- **Easy** Scale as Demending
-- **Packaging** all the things and directly go
-- **Splitting** by container means easier to mantaince 
-- **Foundation** step to orchestration tools like Openshift/K8s
-
-
-![Docker Container](images/Docker-Container.jpg)
+### Why Choose Docker/Containers Over VMs?
+- **Batching Efficiency** – Perfect for scheduled batch processing rather than continuous streaming.
+- **Cost-Effective** – Lower operational cost compared to running multiple VMs.
+- **Elastic Scaling** – Easily scale services up or down based on demand.
+- **Self-Contained Packaging** – Everything needed is bundled within the container, making deployment straightforward.
+- **Modular Maintenance** – Splitting workloads into separate containers simplifies management and updates.
+- **Foundation for Orchestration** – Containers serve as the building blocks for orchestration platforms like Kubernetes or OpenShift.
