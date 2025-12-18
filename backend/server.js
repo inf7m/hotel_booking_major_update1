@@ -38,28 +38,31 @@ const FALLBACK_ORIGINS = [
   "http://127.0.0.1:5000", // Thêm dòng này cho production mode
 ];
 
-const ALLOWED_ORIGINS = [
+const ALLOWED_ORIGINS = [...new Set([
+    ...ENV_ORIGINS,
+    ...FALLBACK_ORIGINS,
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "https://gaigoivn.up.railway.app"
-];
+    "http://gaigoivn.up.railway.app",
+    "https://gaigoivn.up.railway.app",
+    "http://hoteltransylvania.up.railway.app",
+    "https://hoteltransylvania.up.railway.app"
+])];
+app.use(
+  cors({
+    origin(origin, cb) {
+      // Cho phép không có origin (same-origin requests, Postman, mobile app)
+      if (!origin) return cb(null, true);
 
-app.use(cors({
-    origin: function(origin, callback) {
-        // allow requests with no origin (Postman, mobile apps)
-        if (!origin) return callback(null, true);
+      // Kiểm tra origin có trong danh sách cho phép
+      if (ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
 
-        // allow if origin matches exactly or starts with it
-        if (ALLOWED_ORIGINS.some(o => origin.startsWith(o))) {
-            return callback(null, true);
-        }
-
-        console.log("❌ CORS blocked:", origin);
-        return callback(new Error(`Not allowed by CORS: ${origin}`));
+      // Từ chối các origin khác
+      return cb(new Error(`Not allowed by CORS: ${origin}`));
     },
-    credentials: true
-}));
-
+    credentials: true,
+  })
+);
 
 app.use((req, res, next) => {
   const origin = req.headers.origin;
