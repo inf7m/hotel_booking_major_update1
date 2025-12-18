@@ -9,32 +9,45 @@ function getDistance(firsLatitude, firstLongitude, secondLatitude, secondLongitu
 }
 
 // Demo-function La Vela Saigon Hotel to Nha Trang / air-line / as the crow-flies
-const result = getDistance(10.788694,106.68536,12.2388,109.1967);
-console.log(result);
+// const result = getDistance(10.788694,106.68536,12.2388,109.1967);
+// console.log(result);
+const fetch = require("node-fetch") // nếu chạy Node.js, frontend thì dùng fetch mặc định
+async function openRouteMatrix(hotelLat, hotelLng, userLat, userLng) {
+    try {
+        const body = {
+            locations: [
+                [hotelLng, hotelLat], // khách sạn
+                [userLng, userLat],   // user
+            ],
+            metrics: ["distance", "duration"], // có thể thêm duration
+            units: "km"
+        };
 
+        const res = await fetch("https://api.openrouteservice.org/v2/matrix/driving-car", {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "YOUR_API_KEY_HERE" // thay bằng API key của bạn
+            },
+            body: JSON.stringify(body)
+        });
 
-function openRouteMatrix(){
-    const body = {
-        locations: [
-            [109.196749, 12.23879],  // Nha Trang
-            [106.6853, 10.788694]    // La Vella Saigon
-        ],
-        metrics: ["distance"],
-        units: "km"
-    };
-    // Calling the openroute API
-    fetch("https://api.openrouteservice.org/v2/matrix/driving-car", {
-        method: "POST",
-        headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Authorization": "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImE3M2JlNDVhYzNhMDRhNzU5MGRhNTRkNzFhMGVlODU4IiwiaCI6Im11cm11cjY0In0="
-        },
-        body: JSON.stringify(body) // convert from json to string // body parsing
-    })
-        .then(res => res.json())
-        .then(data => console.log(data))
-        .catch(err => console.error(err));
+        const data = await res.json();
+        return data; // chứa distance, duration
+    } catch (err) {
+        console.error("OpenRouteMatrix error:", err);
+        return null;
+    }
 }
-openRouteMatrix() // delete after finish
 
+    // Demo gọi hàm
+    (async () => {
+        const hotelLat = 10.788694;
+        const hotelLng = 106.68536;
+        const userLat = 12.2388;
+        const userLng = 109.1967;
+
+        const result = await openRouteMatrix(hotelLat, hotelLng, userLat, userLng);
+        console.log(result);
+    })();

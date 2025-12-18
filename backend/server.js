@@ -34,8 +34,8 @@ const FALLBACK_ORIGINS = [
   "http://127.0.0.1:5173",
   "http://localhost:3000",
   "http://127.0.0.1:3000",
-  "http://localhost:5000", // Thêm dòng này cho production mode
-  "http://127.0.0.1:5000", // Thêm dòng này cho production mode
+  // "http://localhost:5000", // Thêm dòng này cho production mode
+  // "http://127.0.0.1:5000", // Thêm dòng này cho production mode
 ];
 
 const ALLOWED_ORIGINS = [...new Set([
@@ -43,10 +43,10 @@ const ALLOWED_ORIGINS = [...new Set([
     ...FALLBACK_ORIGINS,
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "http://gaigoivn.up.railway.app",
-    "https://gaigoivn.up.railway.app",
-    "http://hoteltransylvania.up.railway.app",
-    "https://hoteltransylvania.up.railway.app"
+    // "http://gaigoivn.up.railway.app",
+    // "https://gaigoivn.up.railway.app",
+    // "http://hoteltransylvania.up.railway.app",
+    // "https://hoteltransylvania.up.railway.app"
 ])];
 app.use(
   cors({
