@@ -42,7 +42,8 @@ const ALLOWED_ORIGINS = [...new Set([
     ...ENV_ORIGINS,
     ...FALLBACK_ORIGINS,
     "http://localhost:5173",
-    "http://127.0.0.1:5173"
+    "http://127.0.0.1:5173",
+    "https://gaigoivn.up.railway.app"
 ])];
 app.use(
   cors({
