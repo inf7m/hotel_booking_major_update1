@@ -35,6 +35,7 @@
     "todox": "file:.."
   },
   "devDependencies": {
+    "react-leaflet": "^5.0.0",
     "@eslint/js": "^9.25.0",
     "@types/node": "^24.10.1",
     "@types/react": "^19.1.2",
