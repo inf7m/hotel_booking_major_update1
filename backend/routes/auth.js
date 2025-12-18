@@ -9,14 +9,16 @@ const User = require("../models/User");
 function setAuthCookie(res, token, remember = false) {
     const isProd = process.env.NODE_ENV === "production";
     const options = {
-        httpOnly: true,
-        secure: isProd,
-        sameSite: "lax",
-        path: "/",
+        httpOnly: true,             // cannot access from JS
+        secure: isProd,             // only HTTPS in production
+        sameSite: isProd ? "none" : "lax", // cross-site for production
+        path: "/",                  // cookie path
     };
 
     if (remember) {
         options.maxAge = 1000 * 60 * 60 * 24 * 7; // 7 days
+    } else {
+        options.maxAge = 1000 * 60 * 60 * 24; // 1 day default
     }
 
     res.cookie("access_token", token, options);
@@ -28,34 +30,34 @@ router.post("/register", async (req, res) => {
         const { email, password, full_name, phone, rememberMe } = req.body;
 
         if (!email || !password || !full_name) {
-            return res.status(400).json({ message: "Thiếu dữ liệu" });
+            return res.status(400).json({ message: "Thiếu dữ liệu gửi lên server" });
         }
 
+        // Check if email exists
         const exist = await User.findOne({ email }).lean();
         if (exist) {
             return res.status(400).json({ message: "Email đã tồn tại" });
         }
 
+        // Hash password
         const hashed = await bcrypt.hash(password, 10);
 
         const user = await User.create({
             email,
             password: hashed,
-            fullName: full_name,
+            fullName: full_name, // match schema
             phone: phone || "",
-            role: email === "admin@hotel.com" ? "admin" : "user", // HOTFIX
+            role: "user",
         });
 
+        // Create JWT
         const token = jwt.sign(
-            {
-                id: user._id,
-                role: user.role,
-                email: user.email, // 🔥 REQUIRED
-            },
+            { id: user._id, role: user.role },
             process.env.JWT_SECRET || "my-secret",
             { expiresIn: "7d" }
         );
 
+        // Set cookie
         setAuthCookie(res, token, !!rememberMe);
 
         res.status(201).json({
@@ -69,38 +71,27 @@ router.post("/register", async (req, res) => {
             },
         });
     } catch (err) {
-        console.error("REGISTER ERROR:", err);
-        res.status(500).json({ message: "Lỗi server" });
+        console.error("🔥 REGISTER ERROR:", err);
+        if (err.name === "ValidationError") {
+            return res.status(400).json({ message: "Dữ liệu không hợp lệ", detail: err.message });
+        }
+        res.status(500).json({ message: "Lỗi server khi đăng ký" });
     }
 });
 
 // ================= LOGIN ==================
 router.post("/login", async (req, res) => {
     try {
-        console.log("📩 BODY LOGIN:", req.body);
-
         const { email, password, rememberMe } = req.body;
 
         const user = await User.findOne({ email }).select("+password");
-        if (!user) {
-            return res.status(401).json({ message: "Sai email hoặc mật khẩu" });
-        }
+        if (!user) return res.status(401).json({ message: "Sai email hoặc mật khẩu" });
 
-        const ok = await bcrypt.compare(password, user.password);
-        if (!ok) {
-            return res.status(401).json({ message: "Sai email hoặc mật khẩu" });
-        }
-
-        // 🔥 HOTFIX: force admin role
-        const role =
-            email === "admin@hotel.com" ? "admin" : user.role;
+        const valid = await bcrypt.compare(password, user.password);
+        if (!valid) return res.status(401).json({ message: "Sai email hoặc mật khẩu" });
 
         const token = jwt.sign(
-            {
-                id: user._id,
-                role,
-                email: user.email, // 🔥 REQUIRED
-            },
+            { id: user._id, role: user.role },
             process.env.JWT_SECRET || "my-secret",
             { expiresIn: "7d" }
         );
@@ -114,16 +105,16 @@ router.post("/login", async (req, res) => {
                 email: user.email,
                 full_name: user.fullName,
                 phone: user.phone,
-                role,
+                role: user.role,
             },
         });
     } catch (err) {
-        console.error("LOGIN ERROR:", err);
-        res.status(500).json({ message: "Lỗi server" });
+        console.error("🔥 LOGIN ERROR:", err);
+        res.status(500).json({ message: "Lỗi server khi đăng nhập" });
     }
 });
 
-// ================= ME ==================
+// ================= GET CURRENT USER ==================
 router.get("/me", async (req, res) => {
     try {
         const token = req.cookies.access_token;
@@ -131,14 +122,19 @@ router.get("/me", async (req, res) => {
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET || "my-secret");
 
+        const user = await User.findById(decoded.id).select("email fullName phone role");
+        if (!user) return res.json(null);
+
         res.json({
-            id: decoded.id,
-            email: decoded.email,
-            role: decoded.role,
+            id: user._id,
+            email: user.email,
+            full_name: user.fullName,
+            phone: user.phone,
+            role: user.role,
         });
     } catch (err) {
-        console.error("ME ERROR:", err);
-        res.json(null);
+        console.error("🔥 ME ERROR:", err);
+        res.json(null); // token invalid/expired
     }
 });
 
