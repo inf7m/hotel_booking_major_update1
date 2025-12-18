@@ -139,7 +139,7 @@ app.use((_req, res) =>
 // ==============================
 //   START SERVER
 // ==============================
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 5000
 const MONGO_URI = process.env.MONGODB_URI_ORIGINAL;
 
 async function startServer() {
