@@ -38,8 +38,12 @@ const FALLBACK_ORIGINS = [
   "http://127.0.0.1:5000", // Thêm dòng này cho production mode
 ];
 
-const ALLOWED_ORIGINS = [...new Set([...ENV_ORIGINS, ...FALLBACK_ORIGINS])];
-
+const ALLOWED_ORIGINS = [...new Set([
+    ...ENV_ORIGINS,
+    ...FALLBACK_ORIGINS,
+    "http://localhost:5173",
+    "http://127.0.0.1:5173"
+])];
 app.use(
   cors({
     origin(origin, cb) {
